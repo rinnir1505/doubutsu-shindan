@@ -344,40 +344,40 @@
 <script>
 /* ---------- データ定義 ---------- */
 const TYPES = {
-  A:{ jp:"リカオン型", en:"LYCAON", emoji:"🐕", img:"images/type-a-rikaon.png",
+  A:{ jp:"リカオン型", en:"LYCAON", emoji:"🐕", img:"type-a-rikaon.png",
       desc:"仲間と一緒にいるとき、あなたは自然とまとめ役になっていませんか？困っている人を放っておけない優しさと、迷わず動ける行動力を併せ持つあなたは、気づけば周りから頼られる存在。群れの中でも自分らしさを失わない、しなやかな強さの持ち主です。",
       msg:"あなたの背中を見て、動き出せる人がきっといます。" },
-  B:{ jp:"ミーアキャット型", en:"MEERKAT", emoji:"🐾", img:"images/type-b-meerkat.png",
+  B:{ jp:"ミーアキャット型", en:"MEERKAT", emoji:"🐾", img:"type-b-meerkat.png",
       desc:"誰かのために自然と体が動いてしまう、そんな世話焼きな一面がありませんか？周りをそっと見守りながら、必要な時にはすぐ駆けつける。そんなあなたの優しさは、言葉にしなくてもちゃんと伝わっています。",
       msg:"あなたの「見守る力」は、誰かの安心そのもの。" },
-  C:{ jp:"センザンコウ型", en:"PANGOLIN", emoji:"🦔", img:"images/type-c-senzankou.png",
+  C:{ jp:"センザンコウ型", en:"PANGOLIN", emoji:"🦔", img:"type-c-senzankou.png",
       desc:"人に合わせるより、自分の感覚を信じて動きたいタイプではありませんか？独特な視点とマイペースな行動力で、気づけば誰も真似できない自分だけの道を歩いています。",
       msg:"その「我が道」こそが、あなたの一番の魅力です。" },
-  D:{ jp:"ラーテル型", en:"HONEY BADGER", emoji:"🦡", img:"images/type-d-ratel.png",
+  D:{ jp:"ラーテル型", en:"HONEY BADGER", emoji:"🦡", img:"type-d-ratel.png",
       desc:"どんな状況でも、案外どうにかしてしまう。そんなタフさと柔軟さを兼ね備えているのではありませんか？困難を恐れず、必要なら形を変えてでも前に進む。芯の強い現実主義者です。",
       msg:"あなたなら、大抵のことはなんとかなります。" },
-  E:{ jp:"オカピ型", en:"OKAPI", emoji:"🦓", img:"images/type-e-okapi.png",
+  E:{ jp:"オカピ型", en:"OKAPI", emoji:"🦓", img:"type-e-okapi.png",
       desc:"物静かに見えて、実はしっかりとした自分の軸を持っているタイプ。人と群れることより、自分のペースで丁寧に過ごすことを大切にしているのではありませんか？",
       msg:"静けさの中にこそ、あなたらしさが宿っています。" },
-  F:{ jp:"マヌルネコ型", en:"MANUL", emoji:"🐱", img:"images/type-f-manul.png",
+  F:{ jp:"マヌルネコ型", en:"MANUL", emoji:"🐱", img:"type-f-manul.png",
       desc:"一見のんびりして見えても、実はちゃんと自分の世界を守っている。優しく穏やかな雰囲気の裏に、意外としっかりした警戒心と芯を持つタイプです。",
       msg:"もふっとした空気感の裏に、実は強さが隠れています。" },
-  G:{ jp:"ハシビロコウ型", en:"SHOEBILL", emoji:"🦤", img:"images/type-g-hashibirokou.png",
+  G:{ jp:"ハシビロコウ型", en:"SHOEBILL", emoji:"🦤", img:"type-g-hashibirokou.png",
       desc:"一人の時間があってこそ、自分らしさを保てるタイプではありませんか？周りに流されず、じっと自分の世界に集中できる時間を大切にする、静かな個性派です。",
       msg:"動かないことも、立派な生き方のひとつです。" },
-  H:{ jp:"マナティー型", en:"MANATEE", emoji:"🐋", img:"images/type-h-manatee.png",
+  H:{ jp:"マナティー型", en:"MANATEE", emoji:"🐋", img:"type-h-manatee.png",
       desc:"特別急がず、無理もせず。あなたはゆったりとしたペースで、バランスよく物事を進めていくタイプです。焦らないその姿勢が、実は一番強い生存戦略なのかもしれません。",
       msg:"のんびりは、あなたの立派な武器です。" },
-  I:{ jp:"カメレオン型", en:"CHAMELEON", emoji:"🦎", img:"images/type-i-chameleon.png", rare:true,
+  I:{ jp:"カメレオン型", en:"CHAMELEON", emoji:"🦎", img:"type-i-chameleon.png", rare:true,
       desc:"その場の空気や相手によって、自分でも気づかないうちに表情を変えているのではありませんか？一貫していないようで、実はどんな状況にもしなやかに適応できる、貴重なタイプです。",
       msg:"変わり続けることも、ひとつの才能です。" },
-  J:{ jp:"カモノハシ型", en:"PLATYPUS", emoji:"🦫", img:"images/type-j-platypus.png", rare:true,
+  J:{ jp:"カモノハシ型", en:"PLATYPUS", emoji:"🦫", img:"type-j-platypus.png", rare:true,
       desc:"初めて出会った人には、ちょっと説明しづらいタイプかもしれません。落ち着いているようで大胆、群れなくても平気なのに、ふとした瞬間に人懐っこさも見せる。ひとつの型にはまらないその佇まいこそが、あなたらしさの証です。",
       msg:"分類しようとしても、うまくいかない。それがあなたの魅力です。" },
-  K:{ jp:"シャチ型", en:"ORCA", emoji:"🐋", img:"images/type-k-orca.png", rare:true,
+  K:{ jp:"シャチ型", en:"ORCA", emoji:"🐋", img:"type-k-orca.png", rare:true,
       desc:"周りからは「強くて頼れる人」と思われがちではありませんか？でも本当は、誰かとの繋がりがあってこそ力を発揮できる、案外繊細な一面を持っているはず。堂々として見える姿の裏で、実はちゃんと周りを気にかけています。",
       msg:"強さは、誰かと繋がっているから生まれるものです。" },
-  L:{ jp:"タツノオトシゴ型", en:"SEAHORSE", emoji:"🐡", img:"images/type-l-seahorse.png", rare:true,
+  L:{ jp:"タツノオトシゴ型", en:"SEAHORSE", emoji:"🐡", img:"type-l-seahorse.png", rare:true,
       desc:"穏やかに見えて、実は心の中では色々な想いが静かに揺れ動いているのではありませんか？自分から流れを起こすより、その時々の流れに身を任せる方が心地いい。そんな静かな繊細さを持つタイプです。",
       msg:"漂うことも、ちゃんとした生き方のひとつです。" },
 };
@@ -395,18 +395,18 @@ const QUESTIONS = [
       {label:"まずは周りをよく観察する", value:"B"},
     ]},
   { key:"q2", branch:"q1",
-    A:{ text:"その行動、誰のため？",
+    A:{ text:"動くとき、まず誰のことを考える？",
         choices:[
           {label:"困ってる人がいたら放っておけない", value:"A"},
           {label:"まずは自分の「やりたい」を優先したい", value:"B"},
         ]},
-    B:{ text:"それでも、目の前で誰かが困っていたら？",
+    B:{ text:"目の前で誰かが困っていたら、どうする？",
         choices:[
           {label:"気づいたら体が動いている", value:"A"},
           {label:"状況を見てから判断したい", value:"B"},
         ]}},
   { key:"q3", branch:"q1q2",
-    AA:{ text:"それでも自分らしさは大事にしたい？",
+    AA:{ text:"自分らしさは、大事にしたい方？",
          choices:[
            {label:"もちろん。自分の色は絶対に出す", value:"A"},
            {label:"場の空気の方が優先かも", value:"B"},
@@ -433,6 +433,9 @@ const QUESTIONS = [
       {label:"かなり頻繁に変わる。自分でも驚くくらい", value:"B"},
     ]},
 ];
+
+/* ---------- 公開先URL(公開時にここだけ差し替え) ---------- */
+const SHARE_URL = "https://rinnir1505.github.io/doubutsu-shindan/";
 
 /* ---------- 状態 ---------- */
 let answers = {};
@@ -554,9 +557,11 @@ function shareResult(){
   const t = TYPES[typeKey];
   const text = `新・動物診断やってみたら「${t.jp}」でした。${t.rare ? '(レアタイプ出た…)' : ''}\n${t.msg}`;
   if(navigator.share){
-    navigator.share({ text: text }).catch(()=>{});
+    // text/url を分けて渡す(対応アプリ側でリンクプレビューが出やすくなる)
+    navigator.share({ text: text, url: SHARE_URL }).catch(()=>{});
   } else {
-    navigator.clipboard.writeText(text).then(()=>{
+    // クリップボードにはtext/urlの分離がないため、URLを文中に含める
+    navigator.clipboard.writeText(`${text}\n${SHARE_URL}`).then(()=>{
       showToast('結果をコピーしました');
     }).catch(()=>{
       showToast('コピーできませんでした');
