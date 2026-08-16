@@ -321,6 +321,23 @@
     margin-top:18px;
     letter-spacing:0.02em;
   }
+  .share-status{
+    text-align:center;
+    font-size:12px;
+    color:var(--brown-soft);
+    margin-top:10px;
+    min-height:16px;
+  }
+  .share-preview{
+    display:none;
+    width:100%;
+    border-radius:16px;
+    margin-top:14px;
+    box-shadow:0 8px 20px -10px rgba(107,86,68,0.35);
+  }
+  .share-preview.visible{
+    display:block;
+  }
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
   }
@@ -540,9 +557,11 @@ function renderResult(){
     <p class="result-desc">${t.desc}</p>
     <div class="result-message">${t.msg}</div>
     <div class="result-actions">
-      <button class="btn-secondary" onclick="shareResult()">診断結果をシェアする</button>
+      <button class="btn-secondary" id="shareBtn" onclick="shareResult()">診断結果をカードでシェアする</button>
       <button class="btn-secondary" onclick="startQuiz()">もう一度診断する</button>
     </div>
+    <div class="share-status" id="shareStatus"></div>
+    <img class="share-preview" id="sharePreview" alt="シェアカードのプレビュー">
   `;
   // 画像の存在確認（onerrorが発火しない環境向けの保険）
   const img = app.querySelector('.result-figure img');
@@ -552,20 +571,233 @@ function renderResult(){
   testImg.src = t.img;
 }
 
-function shareResult(){
-  const typeKey = computeType();
+/* ---------- シェアカード生成 ---------- */
+const CARD_W = 1200, CARD_H = 630;
+
+function roundRectPath(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+
+function wrapCanvasText(ctx, text, maxWidth){
+  const chars = Array.from(text);
+  const lines = [];
+  let line = '';
+  for(const ch of chars){
+    const test = line + ch;
+    if(line && ctx.measureText(test).width > maxWidth){
+      lines.push(line);
+      line = ch;
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function loadImageSafe(src){
+  return new Promise((resolve)=>{
+    const img = new Image();
+    img.onload = ()=>resolve(img);
+    img.onerror = ()=>resolve(null);
+    img.src = src;
+  });
+}
+
+async function buildShareCardCanvas(typeKey, idxStr){
   const t = TYPES[typeKey];
-  const text = `新・動物診断やってみたら「${t.jp}」でした。${t.rare ? '(レアタイプ出た…)' : ''}\n${t.msg}`;
-  if(navigator.share){
-    // text/url を分けて渡す(対応アプリ側でリンクプレビューが出やすくなる)
-    navigator.share({ text: text, url: SHARE_URL }).catch(()=>{});
+  const canvas = document.createElement('canvas');
+  canvas.width = CARD_W; canvas.height = CARD_H;
+  const ctx = canvas.getContext('2d');
+
+  // webfontの読み込み待ち（未ロードだとフォールバック体で描画されるため）
+  try{
+    await document.fonts.load('900 46px "Zen Maru Gothic"');
+    await document.fonts.load('700 24px "Zen Maru Gothic"');
+    await document.fonts.load('400 32px "Yomogi"');
+    await document.fonts.ready;
+  }catch(e){}
+
+  // 背景（クリーム地＋やわらかい丸ぼかし。本体ページと同じ配色）
+  ctx.fillStyle = '#fff8ee';
+  ctx.fillRect(0,0,CARD_W,CARD_H);
+  const softBlob = (x,y,r,color)=>{
+    const g = ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,color); g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  };
+  softBlob(100,80,260,'rgba(191,227,208,0.5)');
+  softBlob(CARD_W-120,CARD_H-90,300,'rgba(255,228,214,0.65)');
+
+  // カード本体
+  const pad = 44;
+  roundRectPath(ctx, pad, pad, CARD_W-pad*2, CARD_H-pad*2, 32);
+  ctx.fillStyle = '#fffdf9';
+  ctx.fill();
+
+  const innerX = pad+44;
+  let cursorY = pad+66;
+
+  // ブランド表記
+  ctx.fillStyle = '#dd6b52';
+  ctx.font = '400 32px "Yomogi", cursive';
+  ctx.textAlign = 'left';
+  ctx.fillText('新・動物診断', innerX, cursorY);
+
+  // 図鑑番号（右上）
+  ctx.fillStyle = '#8f7a67';
+  ctx.font = '700 18px "Zen Maru Gothic", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(`図鑑 No.${idxStr} / 12`, CARD_W-pad-44, cursorY-6);
+  ctx.textAlign = 'left';
+
+  cursorY += 26;
+  // Rinnirタグ
+  roundRectPath(ctx, innerX, cursorY, 78, 28, 14);
+  ctx.fillStyle = 'rgba(191,227,208,0.5)';
+  ctx.fill();
+  ctx.fillStyle = '#6fa98a';
+  ctx.font = '700 14px "Zen Maru Gothic", sans-serif';
+  ctx.fillText('Rinnir', innerX+16, cursorY+19);
+
+  // レアバッジ
+  if(t.rare){
+    const bx = innerX+78+14;
+    roundRectPath(ctx, bx, cursorY, 108, 28, 14);
+    const rg = ctx.createLinearGradient(bx,0,bx+108,0);
+    rg.addColorStop(0,'#c9698a'); rg.addColorStop(1,'#dd6b52');
+    ctx.fillStyle = rg; ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 13px "Zen Maru Gothic", sans-serif';
+    ctx.fillText('RARE TYPE', bx+14, cursorY+19);
+  }
+
+  // 動物イラスト（正方形・カバー配置）
+  const figSize = 340;
+  const figX = innerX;
+  const figY = cursorY + 60;
+  roundRectPath(ctx, figX, figY, figSize, figSize, 24);
+  ctx.save();
+  ctx.clip();
+  const fg = ctx.createLinearGradient(figX,figY,figX+figSize,figY+figSize);
+  fg.addColorStop(0,'#ffe4d6'); fg.addColorStop(1,'#bfe3d0');
+  ctx.fillStyle = fg;
+  ctx.fillRect(figX,figY,figSize,figSize);
+  const img = await loadImageSafe(t.img);
+  if(img){
+    const scale = Math.max(figSize/img.width, figSize/img.height);
+    const dw = img.width*scale, dh = img.height*scale;
+    ctx.drawImage(img, figX+(figSize-dw)/2, figY+(figSize-dh)/2, dw, dh);
   } else {
-    // クリップボードにはtext/urlの分離がないため、URLを文中に含める
-    navigator.clipboard.writeText(`${text}\n${SHARE_URL}`).then(()=>{
-      showToast('結果をコピーしました');
-    }).catch(()=>{
-      showToast('コピーできませんでした');
-    });
+    ctx.font = '160px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fff';
+    ctx.fillText(t.emoji, figX+figSize/2, figY+figSize/2+56);
+    ctx.textAlign = 'left';
+  }
+  ctx.restore();
+
+  // テキストブロック（右側）
+  const textX = figX + figSize + 48;
+  const textW = CARD_W - pad - 44 - textX;
+  let ty = figY + 30;
+
+  ctx.fillStyle = '#8f7a67';
+  ctx.font = '700 18px "Zen Maru Gothic", sans-serif';
+  ctx.fillText(t.en, textX, ty);
+
+  ty += 52;
+  ctx.fillStyle = '#6b5644';
+  ctx.font = '900 46px "Zen Maru Gothic", sans-serif';
+  ctx.fillText(t.jp, textX, ty);
+
+  ty += 50;
+  ctx.font = '700 24px "Zen Maru Gothic", sans-serif';
+  const msgLines = wrapCanvasText(ctx, t.msg, textW-48);
+  const boxH = 40 + msgLines.length*34;
+  roundRectPath(ctx, textX, ty, textW, boxH, 16);
+  ctx.fillStyle = 'rgba(191,227,208,0.35)';
+  ctx.fill();
+  ctx.fillStyle = '#6fa98a';
+  ctx.fillRect(textX, ty, 5, boxH);
+  ctx.fillStyle = '#6b5644';
+  msgLines.forEach((line,i)=>{
+    ctx.fillText(line, textX+24, ty+38+i*34);
+  });
+
+  // フッター（URLの透かし）
+  ctx.fillStyle = '#8f7a67';
+  ctx.font = '500 16px "Zen Maru Gothic", sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(SHARE_URL.replace(/^https?:\/\//,''), CARD_W-pad-44, CARD_H-pad-30);
+  ctx.textAlign = 'left';
+
+  return canvas;
+}
+
+function triggerDownload(blob, filename){
+  if(!blob) return;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 4000);
+}
+
+// ボタン1回で「カード生成→プレビュー表示→可能な手段で共有」まで完結させる。
+// Web Share API（ファイル対応）→ Web Share API（テキストのみ＋画像は保存）→ 保存＋クリップボードコピー、の順に段階的に降りる。
+async function shareResult(){
+  const typeKey = computeType();
+  const idx = Object.keys(TYPES).indexOf(typeKey)+1;
+  const idxStr = String(idx).padStart(2,'0');
+  const t = TYPES[typeKey];
+  const btn = document.getElementById('shareBtn');
+  const statusEl = document.getElementById('shareStatus');
+  const previewEl = document.getElementById('sharePreview');
+  if(!btn) return;
+  btn.disabled = true;
+  if(statusEl) statusEl.textContent = 'カードを作成しています…';
+
+  try{
+    const canvas = await buildShareCardCanvas(typeKey, idxStr);
+    const dataUrl = canvas.toDataURL('image/png');
+    if(previewEl){ previewEl.src = dataUrl; previewEl.classList.add('visible'); }
+
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const text = `新・動物診断やってみたら「${t.jp}」でした。${t.rare ? '(レアタイプ出た…)' : ''}\n${t.msg}`;
+    const filename = 'doubutsu-shindan-result.png';
+    const file = blob ? new File([blob], filename, { type:'image/png' }) : null;
+
+    if(file && navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:'新・動物診断', text: text, url: SHARE_URL });
+      if(statusEl) statusEl.textContent = '共有シートを開きました。';
+    } else if(navigator.share){
+      await navigator.share({ title:'新・動物診断', text: text, url: SHARE_URL });
+      triggerDownload(blob, filename);
+      if(statusEl) statusEl.textContent = 'テキストを共有し、カード画像も保存しました。';
+    } else {
+      triggerDownload(blob, filename);
+      try{
+        await navigator.clipboard.writeText(`${text}\n${SHARE_URL}`);
+        if(statusEl) statusEl.textContent = 'カード画像を保存し、文章をコピーしました。';
+      }catch(e){
+        if(statusEl) statusEl.textContent = 'カード画像を保存しました。';
+      }
+    }
+  }catch(err){
+    if(err && err.name === 'AbortError'){
+      if(statusEl) statusEl.textContent = '';
+    } else {
+      if(statusEl) statusEl.textContent = 'カードの作成に失敗しました。もう一度お試しください。';
+    }
+  } finally {
+    btn.disabled = false;
   }
 }
 
