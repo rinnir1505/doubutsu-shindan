@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新・動物診断 | Rinnir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yomogi&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#fff8ee;
+    --peach:#ffe4d6;
+    --coral:#f0876a;
+    --coral-deep:#dd6b52;
+    --mint:#bfe3d0;
+    --mint-deep:#6fa98a;
+    --brown:#6b5644;
+    --brown-soft:#8f7a67;
+    --berry:#c9698a;
+    --line:#f2d9c8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(191,227,208,0.55) 0, transparent 42%),
+      radial-gradient(circle at 88% 92%, rgba(255,228,214,0.7) 0, transparent 45%),
+      var(--cream);
+    color:var(--brown);
+    font-family:'Zen Maru Gothic', sans-serif;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:32px 16px 64px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .stage{
+    width:100%;
+    max-width:480px;
+  }
+  .brand{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    margin-bottom:20px;
+    padding:0 4px;
+  }
+  .brand-name{
+    font-family:'Yomogi', cursive;
+    font-weight:400;
+    font-size:19px;
+    color:var(--coral-deep);
+  }
+  .brand-tag{
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.08em;
+    color:var(--mint-deep);
+    background:rgba(191,227,208,0.5);
+    padding:3px 10px;
+    border-radius:99px;
+  }
+  .card{
+    background:#fffdf9;
+    border:none;
+    border-radius:28px;
+    position:relative;
+    padding:34px 26px 28px;
+    box-shadow:0 14px 34px -14px rgba(107,86,68,0.28), 0 2px 8px rgba(107,86,68,0.06);
+  }
+
+  /* --- Intro --- */
+  .intro-eyebrow{
+    display:inline-block;
+    font-size:11px;
+    letter-spacing:0.08em;
+    color:var(--mint-deep);
+    font-weight:700;
+    background:var(--mint);
+    padding:5px 12px;
+    border-radius:99px;
+    margin-bottom:16px;
+  }
+  h1{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:22px;
+    line-height:1.6;
+    font-weight:900;
+    margin:0 0 16px;
+    color:var(--brown);
+    letter-spacing:0.01em;
+    text-wrap:balance;
+  }
+  .intro-desc{
+    font-size:14px;
+    line-height:2;
+    color:var(--brown-soft);
+    margin:0 0 24px;
+    text-wrap:pretty;
+  }
+  .spec-count{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    font-size:12px;
+    color:var(--brown-soft);
+    margin-bottom:24px;
+    letter-spacing:0.02em;
+  }
+  .spec-count .num{
+    font-family:'Yomogi', cursive;
+    font-size:24px;
+    font-weight:400;
+    color:var(--coral-deep);
+  }
+  button{
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .btn-primary{
+    width:100%;
+    padding:17px;
+    background:linear-gradient(135deg, var(--coral), var(--coral-deep));
+    color:#fff;
+    border:none;
+    border-radius:99px;
+    font-size:14.5px;
+    font-weight:700;
+    letter-spacing:0.06em;
+    box-shadow:0 10px 22px -8px rgba(221,107,82,0.55);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 14px 26px -8px rgba(221,107,82,0.6);}
+  .btn-primary:active{transform:translateY(0px) scale(0.98);}
+
+  /* --- Quiz --- */
+  .progress-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:24px;
+  }
+  .progress-label{
+    font-family:'Yomogi', cursive;
+    font-size:14px;
+    font-weight:400;
+    color:var(--coral-deep);
+    white-space:nowrap;
+  }
+  .progress-track{
+    flex:1;
+    height:8px;
+    background:var(--peach);
+    border-radius:99px;
+    position:relative;
+    overflow:hidden;
+  }
+  .progress-fill{
+    position:absolute;
+    top:0;left:0;bottom:0;
+    background:linear-gradient(90deg, var(--mint-deep), var(--mint));
+    border-radius:99px;
+    transition:width .3s ease;
+  }
+  .q-text{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:18px;
+    line-height:1.75;
+    font-weight:700;
+    margin:0 0 22px;
+    min-height:64px;
+    color:var(--brown);
+  }
+  .choice{
+    display:block;
+    width:100%;
+    text-align:left;
+    background:#fffaf3;
+    border:2px solid var(--line);
+    border-radius:18px;
+    padding:15px 18px;
+    font-size:13.5px;
+    line-height:1.6;
+    color:var(--brown);
+    margin-bottom:11px;
+    transition:background .15s ease, border-color .15s ease, transform .1s ease;
+  }
+  .choice:hover{
+    background:var(--peach);
+    border-color:var(--coral);
+    transform:translateX(2px);
+  }
+  .choice .choice-mark{
+    display:inline-block;
+    font-family:'Yomogi', cursive;
+    font-weight:400;
+    font-size:15px;
+    margin-right:8px;
+    color:var(--coral-deep);
+  }
+
+  /* --- Result --- */
+  .result-index{
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--brown-soft);
+    margin-bottom:6px;
+    font-weight:700;
+  }
+  .result-rare-badge{
+    display:inline-block;
+    font-size:11px;
+    letter-spacing:0.04em;
+    color:#fff;
+    background:linear-gradient(135deg, var(--berry), var(--coral-deep));
+    padding:4px 12px;
+    border-radius:99px;
+    margin-bottom:14px;
+    font-weight:700;
+  }
+  .result-figure{
+    width:100%;
+    aspect-ratio:1/1;
+    border:none;
+    border-radius:24px;
+    background:linear-gradient(160deg, var(--peach), var(--mint) 130%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:20px;
+    overflow:hidden;
+  }
+  .result-figure img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .result-figure .emoji-fallback{
+    font-size:88px;
+    line-height:1;
+  }
+  .result-name-en{
+    font-size:11px;
+    letter-spacing:0.12em;
+    color:var(--brown-soft);
+    margin-bottom:3px;
+    font-weight:700;
+  }
+  .result-name{
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:27px;
+    font-weight:900;
+    margin:0 0 16px;
+    line-height:1.4;
+    color:var(--brown);
+  }
+  .result-desc{
+    font-size:14px;
+    line-height:2;
+    color:var(--brown);
+    margin:0 0 18px;
+    white-space:pre-wrap;
+  }
+  .result-message{
+    border:none;
+    border-left:4px solid var(--mint-deep);
+    background:rgba(191,227,208,0.35);
+    border-radius:4px 18px 18px 4px;
+    padding:16px 20px;
+    margin-bottom:24px;
+    font-family:'Zen Maru Gothic', sans-serif;
+    font-size:15px;
+    font-weight:700;
+    line-height:1.8;
+    color:var(--brown);
+  }
+  .result-actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .btn-secondary{
+    width:100%;
+    padding:15px;
+    background:#fffaf3;
+    color:var(--brown);
+    border:2px solid var(--line);
+    border-radius:99px;
+    font-size:13.5px;
+    font-weight:700;
+    letter-spacing:0.03em;
+  }
+  .btn-secondary:hover{
+    background:var(--peach);
+    border-color:var(--coral);
+  }
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(12px);
+    background:var(--brown);
+    color:#fff;
+    font-size:12px;
+    letter-spacing:0.03em;
+    padding:11px 20px;
+    border-radius:99px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  .footer-note{
+    text-align:center;
+    font-size:11px;
+    color:var(--brown-soft);
+    margin-top:18px;
+    letter-spacing:0.02em;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="brand">
+    <div class="brand-name">新・動物診断</div>
+    <div class="brand-tag">Rinnir</div>
+  </div>
+
+  <div class="card" id="app"></div>
+
+  <div class="footer-note">全4問・所要時間 約1分</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- データ定義 ---------- */
+const TYPES = {
+  A:{ jp:"リカオン型", en:"LYCAON", emoji:"🐕", img:"images/type-a-rikaon.png",
+      desc:"仲間と一緒にいるとき、あなたは自然とまとめ役になっていませんか？困っている人を放っておけない優しさと、迷わず動ける行動力を併せ持つあなたは、気づけば周りから頼られる存在。群れの中でも自分らしさを失わない、しなやかな強さの持ち主です。",
+      msg:"あなたの背中を見て、動き出せる人がきっといます。" },
+  B:{ jp:"ミーアキャット型", en:"MEERKAT", emoji:"🐾", img:"images/type-b-meerkat.png",
+      desc:"誰かのために自然と体が動いてしまう、そんな世話焼きな一面がありませんか？周りをそっと見守りながら、必要な時にはすぐ駆けつける。そんなあなたの優しさは、言葉にしなくてもちゃんと伝わっています。",
+      msg:"あなたの「見守る力」は、誰かの安心そのもの。" },
+  C:{ jp:"センザンコウ型", en:"PANGOLIN", emoji:"🦔", img:"images/type-c-senzankou.png",
+      desc:"人に合わせるより、自分の感覚を信じて動きたいタイプではありませんか？独特な視点とマイペースな行動力で、気づけば誰も真似できない自分だけの道を歩いています。",
+      msg:"その「我が道」こそが、あなたの一番の魅力です。" },
+  D:{ jp:"ラーテル型", en:"HONEY BADGER", emoji:"🦡", img:"images/type-d-ratel.png",
+      desc:"どんな状況でも、案外どうにかしてしまう。そんなタフさと柔軟さを兼ね備えているのではありませんか？困難を恐れず、必要なら形を変えてでも前に進む。芯の強い現実主義者です。",
+      msg:"あなたなら、大抵のことはなんとかなります。" },
+  E:{ jp:"オカピ型", en:"OKAPI", emoji:"🦓", img:"images/type-e-okapi.png",
+      desc:"物静かに見えて、実はしっかりとした自分の軸を持っているタイプ。人と群れることより、自分のペースで丁寧に過ごすことを大切にしているのではありませんか？",
+      msg:"静けさの中にこそ、あなたらしさが宿っています。" },
+  F:{ jp:"マヌルネコ型", en:"MANUL", emoji:"🐱", img:"images/type-f-manul.png",
+      desc:"一見のんびりして見えても、実はちゃんと自分の世界を守っている。優しく穏やかな雰囲気の裏に、意外としっかりした警戒心と芯を持つタイプです。",
+      msg:"もふっとした空気感の裏に、実は強さが隠れています。" },
+  G:{ jp:"ハシビロコウ型", en:"SHOEBILL", emoji:"🦤", img:"images/type-g-hashibirokou.png",
+      desc:"一人の時間があってこそ、自分らしさを保てるタイプではありませんか？周りに流されず、じっと自分の世界に集中できる時間を大切にする、静かな個性派です。",
+      msg:"動かないことも、立派な生き方のひとつです。" },
+  H:{ jp:"マナティー型", en:"MANATEE", emoji:"🐋", img:"images/type-h-manatee.png",
+      desc:"特別急がず、無理もせず。あなたはゆったりとしたペースで、バランスよく物事を進めていくタイプです。焦らないその姿勢が、実は一番強い生存戦略なのかもしれません。",
+      msg:"のんびりは、あなたの立派な武器です。" },
+  I:{ jp:"カメレオン型", en:"CHAMELEON", emoji:"🦎", img:"images/type-i-chameleon.png", rare:true,
+      desc:"その場の空気や相手によって、自分でも気づかないうちに表情を変えているのではありませんか？一貫していないようで、実はどんな状況にもしなやかに適応できる、貴重なタイプです。",
+      msg:"変わり続けることも、ひとつの才能です。" },
+  J:{ jp:"カモノハシ型", en:"PLATYPUS", emoji:"🦫", img:"images/type-j-platypus.png", rare:true,
+      desc:"初めて出会った人には、ちょっと説明しづらいタイプかもしれません。落ち着いているようで大胆、群れなくても平気なのに、ふとした瞬間に人懐っこさも見せる。ひとつの型にはまらないその佇まいこそが、あなたらしさの証です。",
+      msg:"分類しようとしても、うまくいかない。それがあなたの魅力です。" },
+  K:{ jp:"シャチ型", en:"ORCA", emoji:"🐋", img:"images/type-k-orca.png", rare:true,
+      desc:"周りからは「強くて頼れる人」と思われがちではありませんか？でも本当は、誰かとの繋がりがあってこそ力を発揮できる、案外繊細な一面を持っているはず。堂々として見える姿の裏で、実はちゃんと周りを気にかけています。",
+      msg:"強さは、誰かと繋がっているから生まれるものです。" },
+  L:{ jp:"タツノオトシゴ型", en:"SEAHORSE", emoji:"🐡", img:"images/type-l-seahorse.png", rare:true,
+      desc:"穏やかに見えて、実は心の中では色々な想いが静かに揺れ動いているのではありませんか？自分から流れを起こすより、その時々の流れに身を任せる方が心地いい。そんな静かな繊細さを持つタイプです。",
+      msg:"漂うことも、ちゃんとした生き方のひとつです。" },
+};
+
+const BASE_MAP = {
+  "AAA":"A","AAB":"B","ABA":"C","ABB":"D",
+  "BAA":"E","BAB":"F","BBA":"G","BBB":"H"
+};
+
+const QUESTIONS = [
+  { key:"q1",
+    text:"新しい環境に入った時、あなたはどっち？",
+    choices:[
+      {label:"とりあえず動いてみる", value:"A"},
+      {label:"まずは周りをよく観察する", value:"B"},
+    ]},
+  { key:"q2", branch:"q1",
+    A:{ text:"その行動、誰のため？",
+        choices:[
+          {label:"困ってる人がいたら放っておけない", value:"A"},
+          {label:"まずは自分の「やりたい」を優先したい", value:"B"},
+        ]},
+    B:{ text:"それでも、目の前で誰かが困っていたら？",
+        choices:[
+          {label:"気づいたら体が動いている", value:"A"},
+          {label:"状況を見てから判断したい", value:"B"},
+        ]}},
+  { key:"q3", branch:"q1q2",
+    AA:{ text:"それでも自分らしさは大事にしたい？",
+         choices:[
+           {label:"もちろん。自分の色は絶対に出す", value:"A"},
+           {label:"場の空気の方が優先かも", value:"B"},
+         ]},
+    AB:{ text:"周りに合わせるの、得意？",
+         choices:[
+           {label:"うまく合わせられる方だと思う", value:"A"},
+           {label:"正直、あまり得意じゃない", value:"B"},
+         ]},
+    BA:{ text:"自分の意見、ちゃんと言える方？",
+         choices:[
+           {label:"思ったことはハッキリ言うタイプ", value:"A"},
+           {label:"どちらかというと聞き役", value:"B"},
+         ]},
+    BB:{ text:"一人の時間、どのくらい必要？",
+         choices:[
+           {label:"かなり必要。一人時間は譲れない", value:"A"},
+           {label:"そこまで気にしないかも", value:"B"},
+         ]}},
+  { key:"q4",
+    text:"直感で選んだ答えと、あとで考え直した答え、一致することが多い？",
+    choices:[
+      {label:"だいたい一致する", value:"A"},
+      {label:"かなり頻繁に変わる。自分でも驚くくらい", value:"B"},
+    ]},
+];
+
+/* ---------- 状態 ---------- */
+let answers = {};
+let currentStep = 0; // 0=intro, 1-4=questions, 5=result
+
+const app = document.getElementById('app');
+
+function render(){
+  if(currentStep === 0) return renderIntro();
+  if(currentStep >= 1 && currentStep <= 4) return renderQuestion(currentStep);
+  if(currentStep === 5) return renderResult();
+}
+
+function renderIntro(){
+  app.innerHTML = `
+    <div class="intro-eyebrow">FIELD GUIDE OF PERSONALITY</div>
+    <h1>診断結果は12種類の中のどれか。意外な生き物と出会うかもしれません。</h1>
+    <p class="intro-desc">
+      行動のクセ、人への向き合い方、自分らしさの出し方。4つの質問から、あなたのタイプを診断します。
+    </p>
+    <div class="spec-count">
+      <span class="num">12</span>種類の動物　
+      <span class="num">4</span>つの質問
+    </div>
+    <button class="btn-primary" onclick="startQuiz()">診断をはじめる &rarr;</button>
+  `;
+}
+
+function startQuiz(){
+  answers = {};
+  currentStep = 1;
+  render();
+}
+
+function getQuestionData(step){
+  const q = QUESTIONS[step-1];
+  if(!q.branch) return q;
+  if(q.branch === "q1") return q[answers.q1];
+  if(q.branch === "q1q2") return q[answers.q1 + answers.q2];
+}
+
+function renderQuestion(step){
+  const qData = getQuestionData(step);
+  const pct = Math.round(((step-1)/4)*100 + 5);
+  app.innerHTML = `
+    <div class="progress-row">
+      <div class="progress-label">問 ${step} / 4</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <p class="q-text">${qData.text}</p>
+    ${qData.choices.map((c,i)=>`
+      <button class="choice" onclick="answerQuestion(${step},'${c.value}')">
+        <span class="choice-mark">${String.fromCharCode(65+i)}</span>${c.label}
+      </button>
+    `).join('')}
+  `;
+}
+
+function answerQuestion(step, value){
+  answers['q'+step] = value;
+  if(step < 4){
+    currentStep = step+1;
+  } else {
+    currentStep = 5;
+  }
+  render();
+}
+
+// Q1×Q2の枠ごとにレアの行き先を決定（4枠→4種のレアに1対1で対応）
+// AA(行動高・愛情高)   → シャチ　　　　（強そうで内側は不安定）
+// AB(行動高・愛情中)   → カメレオン　　（気まぐれな適応力）
+// BA(行動中・愛情高)   → タツノオトシゴ（穏やかで内側は波打つ）
+// BB(行動中・愛情中)   → カモノハシ　　（達観した謎・分類不能）
+const RARE_MAP = { "AA":"K", "AB":"I", "BA":"L", "BB":"J" };
+
+function computeType(){
+  const baseKey = answers.q1 + answers.q2 + answers.q3;
+  const baseType = BASE_MAP[baseKey];
+  if(answers.q4 === "A"){
+    return baseType;
+  }
+  // 揺らぎ → レア枠（Q1×Q2の枠に応じて行き先が変わる）
+  const groupKey = answers.q1 + answers.q2;
+  return RARE_MAP[groupKey];
+}
+
+function renderResult(){
+  const typeKey = computeType();
+  const t = TYPES[typeKey];
+  const idx = Object.keys(TYPES).indexOf(typeKey)+1;
+  const idxStr = String(idx).padStart(2,'0');
+
+  app.innerHTML = `
+    <div class="result-index">図鑑 No.${idxStr} / 12</div>
+    ${t.rare ? '<div class="result-rare-badge">RARE TYPE</div>' : ''}
+    <div class="result-figure">
+      <img src="${t.img}" alt="${t.jp}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+      <div class="emoji-fallback" style="display:none;">${t.emoji}</div>
+    </div>
+    <div class="result-name-en">${t.en}</div>
+    <h1 class="result-name">${t.jp}</h1>
+    <p class="result-desc">${t.desc}</p>
+    <div class="result-message">${t.msg}</div>
+    <div class="result-actions">
+      <button class="btn-secondary" onclick="shareResult()">診断結果をシェアする</button>
+      <button class="btn-secondary" onclick="startQuiz()">もう一度診断する</button>
+    </div>
+  `;
+  // 画像の存在確認（onerrorが発火しない環境向けの保険）
+  const img = app.querySelector('.result-figure img');
+  const fb = app.querySelector('.emoji-fallback');
+  const testImg = new Image();
+  testImg.onerror = ()=>{ img.style.display='none'; fb.style.display='flex'; };
+  testImg.src = t.img;
+}
+
+function shareResult(){
+  const typeKey = computeType();
+  const t = TYPES[typeKey];
+  const text = `新・動物診断やってみたら「${t.jp}」でした。${t.rare ? '(レアタイプ出た…)' : ''}\n${t.msg}`;
+  if(navigator.share){
+    navigator.share({ text: text }).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(text).then(()=>{
+      showToast('結果をコピーしました');
+    }).catch(()=>{
+      showToast('コピーできませんでした');
+    });
+  }
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2200);
+}
+
+render();
+</script>
+</body>
+</html>
